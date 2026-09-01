@@ -1,47 +1,9 @@
-export default function Page() {
-  return (
-    <main
-      style={{
-        colorScheme: 'light dark',
-        position: 'relative',
-        display: 'flex',
-        minHeight: '100vh',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'light-dark(#fff, #000)',
-        color: 'light-dark(#000, #fff)',
-      }}
-    >
-      <svg
-        aria-hidden="true"
-        style={{ width: 80, height: 80 }}
-        width={80}
-        height={80}
-        fill="none"
-        viewBox="0 0 20 20"
-        xmlns="http://www.w3.org/2000/svg"
-        stroke="currentColor"
-        strokeWidth="0.5"
-      >
-        <path
-          d="M14.2 14.2H17V6.9375C17 4.76288 15.2371 3 13.0625 3H5.8V5.8M14.2 14.2V7.79063L7.79062 14.2H14.2ZM14.2 14.2V17H6.9375C4.76288 17 3 15.2371 3 13.0625V5.8H5.8M5.8 5.8V12.2313L12.2313 5.8H5.8Z"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <p
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: 'calc(50% + 56px)',
-          transform: 'translateX(-50%)',
-          whiteSpace: 'nowrap',
-          fontSize: '14px',
-          fontWeight: 500,
-          color: 'light-dark(#71717a, #a1a1aa)',
-        }}
-      >
-        Your v0 generation will show here.
-      </p>
-    </main>
-  )
-}
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowUpRight, Link2, Radio, ShieldCheck } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { supabase } from '@/lib/supabase/client'
+
+export default function Page() { const router = useRouter(); const [name, setName] = useState(''); const [creating, setCreating] = useState(false); const [error, setError] = useState(''); async function createRoom() { setCreating(true); setError(''); const { data, error: createError } = await supabase.from('rooms').insert({ name: name.trim() || null }).select('id').single(); if (createError || !data) { setError('Could not create a room. Try again.'); setCreating(false); return } router.push(`/room/${data.id}`) } return <main className="min-h-screen bg-background text-foreground"><header className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-6 sm:px-8"><div className="flex items-center gap-3"><div className="flex size-9 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground">s</div><span className="font-semibold tracking-tight">spill chat</span></div><span className="rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-accent-foreground">No login required</span></header><section className="mx-auto grid min-h-[calc(100vh-88px)] w-full max-w-6xl items-center gap-14 px-5 pb-16 pt-10 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:gap-20 lg:pt-0"><div className="max-w-xl"><p className="mb-6 text-sm font-medium uppercase tracking-[0.18em] text-primary">A little room on the internet</p><h1 className="text-balance text-6xl font-semibold leading-[.95] tracking-[-0.06em] sm:text-8xl">Say it <span className="text-primary">here.</span></h1><p className="mt-8 max-w-md text-pretty text-lg leading-8 text-muted-foreground">Create a link, send it to your people, and start talking. No accounts, no setup, no ceremony.</p><div className="mt-10 flex max-w-md flex-col gap-3 sm:flex-row"><Input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void createRoom() }} placeholder="Name your room (optional)" className="h-12 rounded-xl bg-card" aria-label="Optional room name" /><Button onClick={() => void createRoom()} disabled={creating} className="h-12 rounded-xl px-5">{creating ? 'Creating…' : 'Create a room'}<ArrowUpRight data-icon="inline-end" /></Button></div>{error && <p className="mt-3 text-sm text-destructive">{error}</p>}<div className="mt-14 flex flex-wrap gap-x-7 gap-y-3 text-sm text-muted-foreground"><span className="flex items-center gap-2"><Link2 className="size-4 text-primary" />Link-based</span><span className="flex items-center gap-2"><Radio className="size-4 text-primary" />Realtime</span><span className="flex items-center gap-2"><ShieldCheck className="size-4 text-primary" />Private by link</span></div></div><div className="relative"><div className="rounded-[2rem] border border-border bg-card p-4 shadow-[0_24px_80px_-36px_hsl(var(--primary))] sm:p-6"><div className="flex items-center justify-between border-b border-border pb-5"><div><p className="text-sm font-semibold">Weekend plans</p><p className="mt-1 text-xs text-muted-foreground">3 people online</p></div><div className="flex -space-x-2"><div className="flex size-8 items-center justify-center rounded-full border-2 border-card bg-accent text-xs font-semibold">M</div><div className="flex size-8 items-center justify-center rounded-full border-2 border-card bg-primary text-xs font-semibold text-primary-foreground">J</div><div className="flex size-8 items-center justify-center rounded-full border-2 border-card bg-muted text-xs font-semibold">+</div></div></div><div className="flex min-h-[340px] flex-col justify-end gap-5 py-7"><div className="flex items-end gap-3"><div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold">M</div><div><p className="mb-1 text-xs text-muted-foreground">Maya</p><div className="rounded-2xl rounded-bl-md bg-muted px-4 py-3 text-sm">Did someone say road trip?</div></div></div><div className="flex flex-row-reverse items-end gap-3"><div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">J</div><div className="text-right"><p className="mb-1 text-xs text-muted-foreground">You</p><div className="rounded-2xl rounded-br-md bg-primary px-4 py-3 text-sm text-primary-foreground">I’m already making the playlist.</div></div></div><div className="flex items-end gap-3"><div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold">M</div><div><p className="mb-1 text-xs text-muted-foreground">Maya</p><div className="rounded-2xl rounded-bl-md bg-muted px-4 py-3 text-sm">Perfect. Spill the details here.</div></div></div></div><div className="flex items-center gap-3 rounded-xl bg-muted/70 p-3"><span className="flex-1 text-sm text-muted-foreground">Write a message…</span><div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><ArrowUpRight className="size-4" /></div></div></div><p className="mt-5 text-center text-xs text-muted-foreground">Recent messages load instantly, then sync live.</p></div></section></main> }
